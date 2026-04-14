@@ -1,0 +1,1843 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Onbeef — O sistema feito pra quem vende carne</title>
+<meta name="description" content="Sistema de delivery exclusivo para açougues. Zero taxa por pedido. Venda por gramatura. Suporte humano de verdade." />
+
+<!-- Fontes: Hangout e Heaters são proprietárias. Usamos Barlow Condensed e Caveat como fallback aproximado. Substitua pelas fontes oficiais quando publicar. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ============ RESET & BASE ============ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Poppins', -apple-system, sans-serif;
+  background: #000000;
+  color: #F5F5DC;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+
+/* ============ TIPOGRAFIA ============ */
+.h-display {
+  font-family: 'Barlow Condensed', 'Hangout', Impact, sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+}
+.h-brush {
+  font-family: 'Caveat', 'Heaters', cursive;
+  font-weight: 700;
+  color: #F60903;
+  line-height: 1;
+}
+.red-dot::after {
+  content: ".";
+  color: #F60903;
+}
+
+/* ============ LAYOUT ============ */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+section { padding: 100px 0; position: relative; }
+@media (max-width: 768px) { section { padding: 60px 0; } }
+
+/* Textura organica de fundo (SVG inline) */
+.texture-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800' opacity='0.08'%3E%3Cpath d='M 0,400 Q 200,300 400,400 T 800,400' stroke='%23811E01' fill='none' stroke-width='1.5'/%3E%3Cpath d='M 0,300 Q 200,200 400,300 T 800,300' stroke='%23811E01' fill='none' stroke-width='1'/%3E%3Cpath d='M 0,500 Q 200,400 400,500 T 800,500' stroke='%23811E01' fill='none' stroke-width='1.2'/%3E%3Cpath d='M 0,600 Q 200,500 400,600 T 800,600' stroke='%23811E01' fill='none' stroke-width='0.8'/%3E%3Cpath d='M 0,200 Q 200,100 400,200 T 800,200' stroke='%23811E01' fill='none' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: 800px;
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+.texture-bg > * { position: relative; z-index: 1; }
+
+/* ============ NAV ============ */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  background: rgba(0,0,0,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(245,245,220,0.08);
+}
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.logo-oval {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  border-radius: 50px;
+  overflow: hidden;
+  border: 2px solid #F60903;
+}
+.logo-oval span:first-child {
+  background: #000;
+  color: #FFF;
+  padding: 4px 14px 4px 16px;
+}
+.logo-oval span:last-child {
+  background: #F60903;
+  color: #FFF;
+  padding: 4px 16px 4px 14px;
+}
+.nav-cta {
+  display: inline-block;
+  background: #F60903;
+  color: #FFF;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.nav-cta:hover { background: #D90802; transform: translateY(-1px); }
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.nav-links a {
+  color: rgba(245,245,220,0.75);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+.nav-links a:hover { color: #F60903; }
+.nav-burger {
+  display: none;
+  background: none;
+  border: none;
+  color: #F5F5DC;
+  font-size: 26px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px;
+}
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0; right: 0;
+    background: rgba(0,0,0,0.97);
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px 24px;
+    gap: 18px;
+    border-bottom: 1px solid rgba(245,245,220,0.08);
+  }
+  .nav-links.open { display: flex; }
+  .nav-links a { font-size: 16px; }
+  .nav-burger { display: block; }
+}
+
+/* ============ HERO ============ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 140px 0 80px;
+  background: #000000;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/grilled-fillet-steak-rustic-meal-wood-generated-by-ai.jpg') center/cover no-repeat;
+  opacity: 0.18;
+  z-index: 0;
+}
+.hero > .container { position: relative; z-index: 1; }
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+}
+.hero-badge {
+  display: inline-block;
+  background: rgba(246,9,3,0.12);
+  border: 1px solid rgba(246,9,3,0.4);
+  color: #F60903;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
+.hero h1 {
+  font-size: clamp(44px, 7vw, 88px);
+  color: #FFFFFF;
+  margin-bottom: 24px;
+}
+.hero h1 .accent { color: #F60903; }
+.hero-sub {
+  font-size: clamp(17px, 1.6vw, 20px);
+  color: rgba(245,245,220,0.75);
+  max-width: 540px;
+  margin-bottom: 40px;
+  font-weight: 300;
+}
+.hero-sub strong { color: #F5F5DC; font-weight: 600; }
+.hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 32px;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 32px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.btn-primary {
+  background: #F60903;
+  color: #FFF;
+}
+.btn-primary:hover { background: #D90802; transform: translateY(-2px); box-shadow: 0 12px 30px rgba(246,9,3,0.35); }
+.btn-ghost {
+  background: transparent;
+  color: #F5F5DC;
+  border: 2px solid rgba(245,245,220,0.3);
+}
+.btn-ghost:hover { border-color: #F5F5DC; background: rgba(245,245,220,0.05); }
+.hero-trust {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: rgba(245,245,220,0.6);
+  font-size: 14px;
+}
+.hero-trust .check {
+  color: #F60903;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+/* Hero visual */
+.hero-visual {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 20px;
+  background: #0D0D0D;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(246,9,3,0.25);
+}
+.hero-visual::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Cg stroke='%23F60903' stroke-width='1.5' fill='none' opacity='0.4'%3E%3Cpath d='M 0,100 Q 100,50 200,100 T 400,100'/%3E%3Cpath d='M 0,150 Q 100,100 200,150 T 400,150'/%3E%3Cpath d='M 0,200 Q 100,150 200,200 T 400,200'/%3E%3Cpath d='M 0,250 Q 100,200 200,250 T 400,250'/%3E%3Cpath d='M 0,300 Q 100,250 200,300 T 400,300'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: cover;
+}
+.hero-stat-card {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: #FFF;
+  padding: 40px;
+}
+.hero-stat-card .h-brush { font-size: clamp(28px, 4vw, 42px); margin-bottom: 12px; }
+.hero-stat-card .big-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: clamp(56px, 8vw, 96px);
+  line-height: 1;
+  color: #FFF;
+  margin-bottom: 8px;
+}
+.hero-stat-card .big-num span { color: #F60903; }
+.hero-stat-card .stat-label {
+  font-size: 14px;
+  color: rgba(255,255,255,0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+}
+
+/* ============ LOGOS ROW ============ */
+.logos-section {
+  padding: 60px 0;
+  background: #0A0A0A;
+  border-top: 1px solid rgba(245,245,220,0.06);
+  border-bottom: 1px solid rgba(245,245,220,0.06);
+  overflow: hidden;
+}
+.logos-label {
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: rgba(245,245,220,0.5);
+  margin-bottom: 36px;
+  text-transform: uppercase;
+}
+.logos-carousel-wrap {
+  overflow: hidden;
+  position: relative;
+}
+.logos-carousel-wrap::before,
+.logos-carousel-wrap::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 120px;
+  z-index: 2;
+  pointer-events: none;
+}
+.logos-carousel-wrap::before { left: 0; background: linear-gradient(to right, #0A0A0A, transparent); }
+.logos-carousel-wrap::after  { right: 0; background: linear-gradient(to left,  #0A0A0A, transparent); }
+.logos-track {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  width: max-content;
+  animation: scroll-logos 28s linear infinite;
+}
+.logos-track:hover { animation-play-state: paused; }
+@keyframes scroll-logos {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.logo-circle {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 2px solid rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.logo-circle:hover { border-color: rgba(246,9,3,0.6); transform: scale(1.05); }
+.logo-circle img {
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
+  filter: none;
+  flex-shrink: 0;
+}
+
+/* ============ NUMBERS STRIP ============ */
+.numbers {
+  background: #000;
+  border-top: 1px solid rgba(246,9,3,0.15);
+}
+.numbers-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px;
+}
+@media (max-width: 768px) {
+  .numbers-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+}
+.num-card { text-align: center; }
+.num-card .num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: clamp(42px, 6vw, 72px);
+  color: #FFF;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.num-card .num .red { color: #F60903; }
+.num-card .label {
+  font-size: 13px;
+  color: rgba(245,245,220,0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+}
+.num-section-title {
+  text-align: center;
+  margin-bottom: 60px;
+}
+.num-section-title .h-brush { font-size: 32px; margin-bottom: 12px; }
+.num-section-title h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: clamp(32px, 5vw, 56px);
+  color: #FFF;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+/* ============ PAIN SECTION ============ */
+.pain {
+  background: #2A2A2A;
+  position: relative;
+  overflow: hidden;
+}
+.section-title {
+  text-align: center;
+  margin-bottom: 64px;
+}
+.section-title .h-brush { font-size: 32px; margin-bottom: 16px; display: block; }
+.section-title h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: clamp(36px, 5vw, 64px);
+  color: #FFF;
+  text-transform: uppercase;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+.section-title p {
+  font-size: 18px;
+  color: rgba(245,245,220,0.7);
+  max-width: 680px;
+  margin: 0 auto;
+}
+.pain-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+@media (max-width: 900px) { .pain-grid { grid-template-columns: 1fr; } }
+.pain-card {
+  background: #000;
+  border-left: 3px solid #F60903;
+  padding: 28px 28px 32px;
+  border-radius: 4px;
+}
+.pain-card .x {
+  font-family: 'Barlow Condensed', sans-serif;
+  color: #F60903;
+  font-weight: 900;
+  font-size: 32px;
+  line-height: 1;
+  margin-bottom: 12px;
+  display: block;
+}
+.pain-card p {
+  color: #F5F5DC;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* ============ SOLUTION ============ */
+.solution { background: #000; }
+.solution-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+@media (max-width: 900px) { .solution-grid { grid-template-columns: 1fr; gap: 40px; } }
+.solution-text h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: clamp(36px, 5vw, 64px);
+  color: #FFF;
+  text-transform: uppercase;
+  line-height: 1;
+  margin-bottom: 24px;
+}
+.solution-text h2 .red { color: #F60903; }
+.solution-text p {
+  color: rgba(245,245,220,0.8);
+  font-size: 17px;
+  margin-bottom: 20px;
+}
+.solution-list {
+  list-style: none;
+  margin-top: 28px;
+}
+.solution-list li {
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(245,245,220,0.08);
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  color: #F5F5DC;
+}
+.solution-list li:last-child { border-bottom: none; }
+.solution-list .check-red {
+  color: #F60903;
+  font-weight: 900;
+  font-size: 22px;
+  flex-shrink: 0;
+  margin-top: -2px;
+}
+.solution-list li strong { display: block; color: #FFF; font-weight: 600; }
+.solution-list li span { color: rgba(245,245,220,0.65); font-size: 15px; }
+
+.solution-visual {
+  background: linear-gradient(135deg, #410F00 0%, #0C0A0A 100%);
+  border-radius: 20px;
+  padding: 50px 40px;
+  text-align: center;
+  border: 1px solid rgba(246,9,3,0.2);
+  position: relative;
+  overflow: hidden;
+}
+.solution-visual::after {
+  display: none;
+}
+.solution-visual .h-brush { font-size: 28px; margin-bottom: 8px; }
+.solution-visual .quote-big {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: clamp(32px, 4.5vw, 48px);
+  color: #FFF;
+  line-height: 1.05;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+}
+.solution-visual .quote-big .red { color: #F60903; }
+
+/* ============ COMPETITIVE ============ */
+.competitive {
+  background: #811E01;
+  position: relative;
+  overflow: hidden;
+}
+.competitive-inner {
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.competitive h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: clamp(42px, 6vw, 80px);
+  color: #FFF;
+  text-transform: uppercase;
+  line-height: 1;
+  margin-bottom: 20px;
+}
+.competitive .big-zero {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: clamp(120px, 20vw, 240px);
+  line-height: 1;
+  color: #FFF;
+  margin: 20px 0;
+  letter-spacing: -0.03em;
+}
+.competitive .zero-desc {
+  font-size: clamp(18px, 2vw, 24px);
+  color: rgba(255,255,255,0.9);
+  max-width: 640px;
+  margin: 0 auto 16px;
+}
+.competitive .zero-compare {
+  display: inline-block;
+  color: rgba(255,255,255,0.65);
+  text-decoration: line-through;
+  font-size: 17px;
+  margin-bottom: 32px;
+}
+
+/* ============ CASES ============ */
+.cases { background: #000; }
+.cases-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+@media (max-width: 900px) { .cases-grid { grid-template-columns: 1fr; } }
+.case-card {
+  background: #0A0A0A;
+  border: 1px solid rgba(245,245,220,0.08);
+  border-radius: 8px;
+  padding: 32px 28px;
+  transition: all 0.3s;
+  position: relative;
+}
+.case-card:hover { border-color: rgba(246,9,3,0.4); transform: translateY(-4px); }
+.case-card .tag {
+  display: inline-block;
+  font-size: 11px;
+  color: #F60903;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.case-card h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 32px;
+  color: #FFF;
+  text-transform: uppercase;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.case-card .location {
+  color: rgba(245,245,220,0.5);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+.case-card .case-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 48px;
+  color: #F60903;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.case-card .case-num-label {
+  color: #F5F5DC;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+.case-card .case-stats {
+  border-top: 1px solid rgba(245,245,220,0.08);
+  padding-top: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.case-card .case-stats div strong {
+  display: block;
+  color: #FFF;
+  font-weight: 600;
+  font-size: 15px;
+}
+.case-card .case-stats div span {
+  color: rgba(245,245,220,0.5);
+  font-size: 12px;
+}
+
+/* ============ VIDEO ============ */
+.video-section {
+  background: #0A0A0A;
+}
+.video-wrap {
+  max-width: 380px;
+  margin: 0 auto;
+  border-radius: 10px;
+  overflow: hidden;
+  aspect-ratio: 9/16;
+  position: relative;
+}
+
+/* ============ TESTIMONIALS ============ */
+.testimonials { background: #000; }
+.testi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+@media (max-width: 900px) { .testi-grid { grid-template-columns: 1fr; } }
+.testi-card {
+  background: #0A0A0A;
+  border: 1px solid rgba(245,245,220,0.08);
+  border-radius: 8px;
+  padding: 32px 28px;
+}
+.testi-card .quote-mark {
+  font-family: 'Barlow Condensed', sans-serif;
+  color: #F60903;
+  font-size: 64px;
+  line-height: 0.5;
+  margin-bottom: 8px;
+}
+.testi-card p {
+  color: #F5F5DC;
+  font-size: 16px;
+  font-style: italic;
+  margin-bottom: 24px;
+}
+.testi-card .author {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-top: 1px solid rgba(245,245,220,0.08);
+  padding-top: 18px;
+}
+.testi-card .avatar {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: #F60903;
+  color: #FFF;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+  overflow: hidden;
+}
+.testi-card .author-info strong {
+  display: block;
+  color: #FFF;
+  font-weight: 600;
+  font-size: 15px;
+}
+.testi-card .author-info span {
+  color: rgba(245,245,220,0.5);
+  font-size: 13px;
+}
+
+/* ============ DIFFERENTIALS ============ */
+.diff { background: #2A2A2A; }
+.diff-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+@media (max-width: 900px) { .diff-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .diff-grid { grid-template-columns: 1fr; } }
+.diff-card {
+  background: #000;
+  padding: 32px 24px;
+  border-radius: 8px;
+  text-align: center;
+}
+.diff-card .icon-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(246,9,3,0.15);
+  color: #F60903;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+.diff-card h4 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+  color: #FFF;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  line-height: 1.1;
+}
+.diff-card p {
+  color: rgba(245,245,220,0.65);
+  font-size: 14px;
+}
+
+/* ============ FORM / CTA FINAL ============ */
+.final-cta {
+  background: #F60903;
+  position: relative;
+  overflow: hidden;
+}
+.final-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800' opacity='0.12'%3E%3Cg stroke='%23FFF' stroke-width='1.2' fill='none'%3E%3Cpath d='M 0,200 Q 200,100 400,200 T 800,200'/%3E%3Cpath d='M 0,400 Q 200,300 400,400 T 800,400'/%3E%3Cpath d='M 0,600 Q 200,500 400,600 T 800,600'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 800px;
+  opacity: 0.25;
+}
+.final-cta-inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+@media (max-width: 900px) { .final-cta-inner { grid-template-columns: 1fr; gap: 40px; } }
+.final-cta h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: clamp(40px, 6vw, 72px);
+  color: #FFF;
+  text-transform: uppercase;
+  line-height: 0.95;
+  margin-bottom: 20px;
+}
+.final-cta p {
+  color: rgba(255,255,255,0.92);
+  font-size: 18px;
+  margin-bottom: 24px;
+  font-weight: 300;
+}
+.final-cta .h-brush {
+  color: #FFF;
+  font-size: 36px;
+  margin-bottom: 14px;
+}
+
+.lead-form {
+  background: #000;
+  padding: 40px;
+  border-radius: 12px;
+  border: 2px solid rgba(255,255,255,0.12);
+}
+.lead-form h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 28px;
+  color: #FFF;
+  text-transform: uppercase;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.lead-form .form-sub {
+  color: rgba(245,245,220,0.7);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block;
+  color: rgba(245,245,220,0.7);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 14px 16px;
+  background: #0A0A0A;
+  border: 1px solid rgba(245,245,220,0.15);
+  border-radius: 6px;
+  color: #FFF;
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  transition: border-color 0.2s;
+}
+.form-group input:focus, .form-group select:focus {
+  outline: none;
+  border-color: #F60903;
+}
+.form-submit {
+  width: 100%;
+  background: #F60903;
+  color: #FFF;
+  border: none;
+  padding: 18px;
+  border-radius: 6px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+.form-submit:hover { background: #D90802; transform: translateY(-1px); }
+.form-alt {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(245,245,220,0.1);
+  color: rgba(245,245,220,0.5);
+  font-size: 13px;
+}
+.form-alt a {
+  color: #F60903;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* ============ GUARANTEE ============ */
+.guarantee {
+  background: #000;
+  text-align: center;
+  padding: 70px 0;
+  border-top: 1px solid rgba(245,245,220,0.06);
+}
+.guarantee-inner {
+  max-width: 700px;
+  margin: 0 auto;
+}
+.guarantee .shield {
+  display: inline-flex;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(246,9,3,0.15);
+  color: #F60903;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 32px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.guarantee h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: clamp(28px, 4vw, 44px);
+  color: #FFF;
+  text-transform: uppercase;
+  line-height: 1;
+  margin-bottom: 14px;
+}
+.guarantee p {
+  color: rgba(245,245,220,0.7);
+  font-size: 17px;
+}
+
+/* ============ FAQ ============ */
+.faq { background: #0A0A0A; }
+.faq-list { max-width: 800px; margin: 0 auto; }
+.faq-item {
+  border-bottom: 1px solid rgba(245,245,220,0.08);
+}
+.faq-question {
+  padding: 24px 0;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #FFF;
+  font-weight: 600;
+  font-size: 17px;
+  gap: 16px;
+}
+.faq-question::after {
+  content: "+";
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 32px;
+  color: #F60903;
+  transition: transform 0.2s;
+}
+.faq-item.open .faq-question::after { transform: rotate(45deg); }
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+  color: rgba(245,245,220,0.7);
+  font-size: 16px;
+  line-height: 1.7;
+}
+.faq-item.open .faq-answer {
+  max-height: 500px;
+  padding: 0 0 24px;
+}
+
+/* ============ FOOTER ============ */
+footer {
+  background: #000;
+  padding: 60px 0 30px;
+  border-top: 1px solid rgba(245,245,220,0.08);
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+@media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+.footer-col h5 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  color: #FFF;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.footer-col ul { list-style: none; }
+.footer-col li { margin-bottom: 10px; }
+.footer-col a {
+  color: rgba(245,245,220,0.6);
+  font-size: 14px;
+  transition: color 0.2s;
+}
+.footer-col a:hover { color: #F60903; }
+.footer-about {
+  color: rgba(245,245,220,0.6);
+  font-size: 14px;
+  line-height: 1.7;
+  margin-top: 14px;
+}
+.footer-bottom {
+  border-top: 1px solid rgba(245,245,220,0.08);
+  padding-top: 24px;
+  text-align: center;
+  color: rgba(245,245,220,0.4);
+  font-size: 13px;
+}
+
+/* ============ WHATSAPP FLOAT ============ */
+.wa-float {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999;
+  background: #25D366;
+  color: #FFF;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  box-shadow: 0 10px 30px rgba(37,211,102,0.4);
+  transition: transform 0.2s;
+  animation: pulse-wa 2.5s infinite;
+}
+.wa-float:hover { transform: scale(1.08); }
+@keyframes pulse-wa {
+  0%, 100% { box-shadow: 0 10px 30px rgba(37,211,102,0.4); }
+  50% { box-shadow: 0 10px 40px rgba(37,211,102,0.8); }
+}
+
+/* ============ MOBILE OPTIMIZATION ============ */
+@media (max-width: 768px) {
+  /* Base */
+  .container { padding: 0 16px; }
+  section { padding: 56px 0; }
+
+  /* Nav */
+  .nav-inner { padding: 14px 16px; }
+  .nav-cta { padding: 10px 16px; font-size: 13px; }
+
+  /* Hero */
+  .hero { padding: 110px 0 56px; min-height: auto; }
+  .hero-grid { grid-template-columns: 1fr; gap: 32px; }
+  .hero h1 { font-size: clamp(38px, 12vw, 56px); }
+  .hero-sub { font-size: 16px; }
+  .hero-ctas { flex-direction: column; gap: 10px; }
+  .hero-ctas .btn { width: 100%; justify-content: center; padding: 16px 24px; }
+  .hero-visual { aspect-ratio: 4/3; }
+  .hero-stat-card { padding: 24px 20px; }
+  .hero-stat-card .big-num { font-size: clamp(48px, 14vw, 72px); }
+  .hero-stat-card .h-brush { font-size: 22px; }
+
+  /* Logos */
+  .logo-circle { width: 80px; height: 80px; padding: 8px; }
+  .logos-track { gap: 20px; }
+
+  /* Numbers */
+  .numbers-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  .num-card .num { font-size: clamp(34px, 10vw, 52px); }
+  .num-section-title .h-brush { font-size: 24px; }
+
+  /* Pain */
+  .pain-grid { grid-template-columns: 1fr; gap: 14px; }
+  .section-title h2 { font-size: clamp(28px, 8vw, 44px); }
+  .section-title .h-brush { font-size: 24px; }
+  .section-title p { font-size: 15px; }
+
+  /* Solution */
+  .solution-grid { grid-template-columns: 1fr; gap: 32px; }
+  .solution-text h2 { font-size: clamp(30px, 9vw, 50px); }
+  .solution-visual { border-radius: 12px; }
+
+  /* Competitive */
+  .competitive .big-zero { font-size: clamp(80px, 22vw, 140px); }
+  .competitive h2 { font-size: clamp(32px, 9vw, 56px); }
+  .competitive .zero-desc { font-size: 16px; }
+
+  /* Cases */
+  .cases-grid { grid-template-columns: 1fr; gap: 16px; }
+
+  /* Video */
+  .video-wrap { max-width: 300px; }
+
+  /* Differentials */
+  .diff-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+  .diff-card { padding: 24px 16px; }
+  .diff-card h4 { font-size: 18px; }
+
+  /* Testimonials */
+  .testi-grid { grid-template-columns: 1fr; gap: 16px; }
+  .testi-card { padding: 24px 20px; }
+
+  /* Final CTA */
+  .final-cta-inner { grid-template-columns: 1fr; gap: 32px; }
+  .final-cta h2 { font-size: clamp(32px, 9vw, 52px); }
+  .kommo-form-wrap { padding: 24px 20px; }
+
+  /* Footer */
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+  .footer-col:first-child { grid-column: 1 / -1; }
+}
+
+@media (max-width: 480px) {
+  .diff-grid { grid-template-columns: 1fr; }
+  .numbers-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .hero-stat-card > div[style] { grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
+  .pain-card { padding: 20px; }
+  .case-card { padding: 24px 20px; }
+}
+
+/* ============ ANIMATIONS ============ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.reveal { opacity: 0; }
+.reveal.in { animation: fadeUp 0.7s ease forwards; }
+</style>
+</head>
+<body>
+
+<!-- ========== NAV ========== -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" aria-label="Onbeef">
+      <img src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/logo%20onbeef.png" alt="Onbeef" style="height:40px; display:block;" />
+    </a>
+    <div class="nav-links" id="nav-links">
+      <a href="#solution" onclick="document.getElementById('nav-links').classList.remove('open')">Como funciona</a>
+      <a href="#cases" onclick="document.getElementById('nav-links').classList.remove('open')">Cases</a>
+      <a href="#faq" onclick="document.getElementById('nav-links').classList.remove('open')">FAQ</a>
+      <a href="#cta" onclick="document.getElementById('nav-links').classList.remove('open')">Contato</a>
+    </div>
+    <a href="#cta" class="nav-cta">Ver planos</a>
+    <button class="nav-burger" id="nav-burger" aria-label="Menu" onclick="document.getElementById('nav-links').classList.toggle('open')">☰</button>
+  </div>
+</nav>
+
+<!-- ========== HERO ========== -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="reveal in">
+        <span class="hero-badge">Sistema exclusivo para açougues</span>
+        <h1 class="h-display">
+          Seu cliente quer 600g em bife<br>
+          e 400g em strogonoff<span class="accent">.</span>
+        </h1>
+        <p class="hero-sub">
+          <strong>Nenhum delivery genérico foi feito pra isso.</strong>
+          A Onbeef foi. Sistema construído do zero pra quem vende carne
+          de verdade — com gramatura, corte e variação de peso no pedido.
+        </p>
+        <div class="hero-ctas">
+          <a href="#cta" class="btn btn-primary">Quero ver como funciona</a>
+          <a href="#cases" class="btn btn-ghost">Ver resultados reais</a>
+        </div>
+        <div class="hero-trust">
+          <span class="check">✓</span>
+          <span>Sem multa. Sem fidelidade. Cancela quando quiser.</span>
+        </div>
+      </div>
+      <div class="hero-visual reveal in">
+        <div class="hero-stat-card">
+          <span class="h-brush">O que +500 açougues fizeram</span>
+          <div class="big-num">R$<span>594M</span></div>
+          <div style="margin-top:24px; display:grid; grid-template-columns:1fr 1fr; gap:16px; text-align:left;">
+            <div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:32px;color:#F60903;line-height:1;">714mil</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:0.08em;">Pedidos</div>
+            </div>
+            <div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:32px;color:#F60903;line-height:1;">R$811</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:0.08em;">Ticket médio</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== LOGOS ========== -->
+<section class="logos-section">
+  <div class="container">
+    <p class="logos-label">+500 açougues que confiam na Onbeef</p>
+  </div>
+  <div class="logos-carousel-wrap">
+    <div class="logos-track" id="logos-track">
+      <div class="logo-circle"><img src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/acogue-coloso-300x300.webp" alt="Cliente Onbeef" /></div>
+      <div class="logo-circle"><img src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/Logos-Site-3-1-300x300.png" alt="Cliente Onbeef" /></div>
+      <div class="logo-circle"><img src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/9-1-300x300.png" alt="Cliente Onbeef" /></div>
+      <div class="logo-circle"><img src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/6-1-300x300.png" alt="Cliente Onbeef" /></div>
+      <div class="logo-circle"><img src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/4-1-300x300.png" alt="Cliente Onbeef" /></div>
+      <div class="logo-circle"><img src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/3-1-300x300.png" alt="Cliente Onbeef" /></div>
+      <div class="logo-circle"><img src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/2-300x300.png" alt="Cliente Onbeef" /></div>
+      <div class="logo-circle"><img src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/10-300x300.png" alt="Cliente Onbeef" /></div>
+      <div class="logo-circle"><img src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/1-1-300x300.png" alt="Cliente Onbeef" /></div>
+      <!-- duplicado para loop infinito -->
+      <div class="logo-circle"><img src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/acogue-coloso-300x300.webp" alt="Cliente Onbeef" /></div>
+      <div class="logo-circle"><img src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/Logos-Site-3-1-300x300.png" alt="Cliente Onbeef" /></div>
+      <div class="logo-circle"><img src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/9-1-300x300.png" alt="Cliente Onbeef" /></div>
+      <div class="logo-circle"><img src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/6-1-300x300.png" alt="Cliente Onbeef" /></div>
+      <div class="logo-circle"><img src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/4-1-300x300.png" alt="Cliente Onbeef" /></div>
+      <div class="logo-circle"><img src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/3-1-300x300.png" alt="Cliente Onbeef" /></div>
+      <div class="logo-circle"><img src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/2-300x300.png" alt="Cliente Onbeef" /></div>
+      <div class="logo-circle"><img src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/10-300x300.png" alt="Cliente Onbeef" /></div>
+      <div class="logo-circle"><img src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/1-1-300x300.png" alt="Cliente Onbeef" /></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== NUMBERS ========== -->
+<section class="numbers">
+  <div class="container">
+    <div class="num-section-title">
+      <span class="h-brush">Números que falam</span>
+      <h2>Não é promessa. É resultado<span class="red-dot"></span></h2>
+    </div>
+    <div class="numbers-grid">
+      <div class="num-card">
+        <div class="num">R$ <span class="red">594M</span></div>
+        <div class="label">Faturados pelos lojistas (2024–2026)</div>
+      </div>
+      <div class="num-card">
+        <div class="num"><span class="red">714</span>mil</div>
+        <div class="label">Pedidos processados</div>
+      </div>
+      <div class="num-card">
+        <div class="num">R$ <span class="red">811</span></div>
+        <div class="label">Ticket médio por pedido</div>
+      </div>
+      <div class="num-card">
+        <div class="num"><span class="red">241</span>mil</div>
+        <div class="label">Clientes atendidos</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== PAIN ========== -->
+<section class="pain texture-bg">
+  <div class="container">
+    <div class="section-title">
+      <span class="h-brush">Isso te soa familiar?</span>
+      <h2>Você conhece esses problemas<span class="red-dot"></span></h2>
+      <p>Açougue crescendo. WhatsApp explodindo. E você apagando incêndio no meio do expediente.</p>
+    </div>
+    <div class="pain-grid">
+      <div class="pain-card">
+        <span class="x">01</span>
+        <p>Pedido chega pelo WhatsApp e você anota no papel. Cliente esquece o peso, o corte muda no meio do caminho, sai errado.</p>
+      </div>
+      <div class="pain-card">
+        <span class="x">02</span>
+        <p>Cliente pediu 600g em bife e 400g em strogonoff. Nenhum sistema de delivery entende isso. Você tem que gerenciar na mão.</p>
+      </div>
+      <div class="pain-card">
+        <span class="x">03</span>
+        <p>Peso varia na hora de cortar. Você cobra a mais ou cobra a menos. Um dos dois sai no prejuízo — e nunca é o cliente.</p>
+      </div>
+      <div class="pain-card">
+        <span class="x">04</span>
+        <p>Marketplace cobra 12% a 27% em cada pedido. Seu ticket médio alto vira lucro do outro, não seu.</p>
+      </div>
+      <div class="pain-card">
+        <span class="x">05</span>
+        <p>Cliente fiel parou de comprar. Você nem notou. Não tem como acompanhar, sem histórico, sem CRM, sem aviso.</p>
+      </div>
+      <div class="pain-card">
+        <span class="x">06</span>
+        <p>Sistema trava no horário de pico. Você liga pro suporte e cai num bot que não resolve nada.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SOLUTION ========== -->
+<section class="solution" id="solution">
+  <div class="container">
+    <div class="solution-grid">
+      <div class="solution-text">
+        <span class="h-brush">A Onbeef resolve</span>
+        <h2>Carne <span class="red">não é</span> pizza<span class="red-dot"></span></h2>
+        <p>
+          Cliente não compra "1 patinho". Ele quer gramatura específica,
+          corte específico, embalagem separada. E precisa pagar o peso
+          certo — nem mais, nem menos.
+        </p>
+        <p>
+          A gente construiu o sistema do zero pra isso. Não é plataforma
+          genérica adaptada. É ferramenta feita pra quem vende carne.
+        </p>
+        <ul class="solution-list">
+          <li>
+            <span class="check-red">→</span>
+            <div>
+              <strong>4 modos de venda por gramatura</strong>
+              <span>Pacote, Peso Livre, Peso Mínimo e Padrão Unitário</span>
+            </div>
+          </li>
+          <li>
+            <span class="check-red">→</span>
+            <div>
+              <strong>Cortes dentro do produto</strong>
+              <span>Bife, moído, cubos, strogonoff — com gramatura por corte</span>
+            </div>
+          </li>
+          <li>
+            <span class="check-red">→</span>
+            <div>
+              <strong>Pagamento com variação de peso</strong>
+              <span>Até 20% de margem, estorno automático. Zero conflito na entrega.</span>
+            </div>
+          </li>
+          <li>
+            <span class="check-red">→</span>
+            <div>
+              <strong>Atualização de preços via balança</strong>
+              <span>Um clique. Toda a loja atualizada. Sem retrabalho.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="solution-visual" style="padding:0; overflow:hidden; background:none; border:none;">
+        <img src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/corte%20nobre%20print.png" alt="Sistema Onbeef em uso" style="width:100%; height:100%; object-fit:cover; display:block; border-radius:20px;" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== COMPETITIVE ========== -->
+<section class="competitive">
+  <div class="container">
+    <div class="competitive-inner">
+      <span class="h-brush" style="color:#FFF">Enquanto os outros te cobram</span>
+      <h2>Você paga<span class="red-dot" style="color:#000"></span></h2>
+      <div class="big-zero">R$ 0</div>
+      <p class="zero-desc">
+        de taxa por pedido. Seu faturamento é seu.
+      </p>
+      <p class="zero-compare">
+        Concorrentes cobram de 12% a 27% sobre cada venda.
+      </p>
+      <div>
+        <a href="#cta" class="btn btn-primary" style="background:#FFF; color:#F60903;">
+          Quero parar de pagar comissão
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== CASES ========== -->
+<section class="cases" id="cases">
+  <div class="container">
+    <div class="section-title">
+      <span class="h-brush">Quem já decidiu</span>
+      <h2>Resultado real. Número real<span class="red-dot"></span></h2>
+      <p>Açougues de todos os tamanhos. Do balcão ao delivery escalado.</p>
+    </div>
+    <div class="cases-grid">
+      <div class="case-card">
+        <span class="tag">● Açougue em crescimento</span>
+        <div class="case-num">R$ 2,8M</div>
+        <div class="case-num-label">faturamento anual</div>
+        <div class="case-stats">
+          <div><strong>~24/dia</strong><span>pedidos</span></div>
+          <div><strong>8.782</strong><span>pedidos/ano</span></div>
+          <div><strong>R$ 493</strong><span>ROI / R$ 1 investido</span></div>
+          <div><strong>Delivery</strong><span>organizado</span></div>
+        </div>
+      </div>
+      <div class="case-card">
+        <span class="tag">● Açougue consolidado</span>
+        <div class="case-num">R$ 3,7M</div>
+        <div class="case-num-label">faturamento anual</div>
+        <div class="case-stats">
+          <div><strong>~43/dia</strong><span>pedidos</span></div>
+          <div><strong>15.649</strong><span>pedidos/ano</span></div>
+          <div><strong>R$ 1.080</strong><span>ROI / R$ 1 investido</span></div>
+          <div><strong>Zero taxa</strong><span>por pedido</span></div>
+        </div>
+      </div>
+      <div class="case-card">
+        <span class="tag">● Açougue escalado</span>
+        <div class="case-num">R$ 7,2M</div>
+        <div class="case-num-label">faturamento em 12 meses</div>
+        <div class="case-stats">
+          <div><strong>~76/dia</strong><span>pedidos</span></div>
+          <div><strong>27.964</strong><span>pedidos/ano</span></div>
+          <div><strong>R$ 2.074</strong><span>ROI / R$ 1 investido</span></div>
+          <div><strong>R$ 515</strong><span>ticket médio</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== VIDEO ========== -->
+<section class="video-section">
+  <div class="container">
+    <div class="section-title">
+      <span class="h-brush">Veja na prática</span>
+      <h2>O sistema funcionando de verdade<span class="red-dot"></span></h2>
+    </div>
+    <div class="video-wrap">
+      <video
+        controls
+        autoplay
+        muted
+        loop
+        playsinline
+        style="width:100%; height:100%; object-fit:cover; display:block;"
+      >
+        <source src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/pedido(1).mp4" type="video/mp4" />
+        Seu navegador não suporta vídeo HTML5.
+      </video>
+    </div>
+  </div>
+</section>
+
+<!-- ========== DIFFERENTIALS ========== -->
+<section class="diff">
+  <div class="container">
+    <div class="section-title">
+      <span class="h-brush">Por que Onbeef</span>
+      <h2>Feito pra quem vende carne<span class="red-dot"></span></h2>
+    </div>
+    <div class="diff-grid">
+      <div class="diff-card">
+        <div class="icon-circle">01</div>
+        <h4>Venda por gramatura</h4>
+        <p>4 modos de venda. Peso, corte, variação. Nenhum sistema genérico entende.</p>
+      </div>
+      <div class="diff-card">
+        <div class="icon-circle">02</div>
+        <h4>Zero taxa por pedido</h4>
+        <p>Seu faturamento é seu. Sem comissão sobre cada venda.</p>
+      </div>
+      <div class="diff-card">
+        <div class="icon-circle">03</div>
+        <h4>Suporte humano</h4>
+        <p>Segunda a sexta, 8h às 18h. Gente de verdade. Sem bot.</p>
+      </div>
+      <div class="diff-card">
+        <div class="icon-circle">04</div>
+        <h4>+106 fotos grátis</h4>
+        <p>Banco de fotos profissionais de produto disponível pra você usar.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== TESTIMONIALS ========== -->
+<section class="testimonials">
+  <div class="container">
+    <div class="section-title">
+      <span class="h-brush">Depoimento de quem usa</span>
+      <h2>Na palavra de quem vive o dia a dia<span class="red-dot"></span></h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div style="color:#F60903; font-size:18px; margin-bottom:12px; letter-spacing:2px;">★★★★★</div>
+        <p>A Onbeef se tornou uma ferramenta fundamental e estratégica para nosso negócio. Sua praticidade e agilidade oferecem uma experiência excelente para os clientes.</p>
+        <div class="author">
+          <div class="avatar">JM</div>
+          <div class="author-info">
+            <strong>José Manoel</strong>
+            <span>Sócio Proprietário, Casa Dibs Empório das Carnes</span>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div style="color:#F60903; font-size:18px; margin-bottom:12px; letter-spacing:2px;">★★★★★</div>
+        <p>O OnBeef foi a cereja do bolo para o nosso serviço de delivery. As ferramentas são realmente feitas para nosso segmento, e as melhorias constantes são notáveis. Hoje, posso afirmar que essa ferramenta é indispensável para nós.</p>
+        <div class="author">
+          <div class="avatar">FN</div>
+          <div class="author-info">
+            <strong>Fernando Novelli</strong>
+            <span>Sócio Proprietário, Casa de Carnes Boi Verde</span>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div style="color:#F60903; font-size:18px; margin-bottom:12px; letter-spacing:2px;">★★★★★</div>
+        <p>O site foi fundamental para impulsionar minhas vendas e fidelizar clientes. Sua eficiência trouxe novos clientes e um sentimento de mais profissionalismo ao meu negócio. Um verdadeiro salto tecnológico. Tenho apenas elogios!</p>
+        <div class="author">
+          <div class="avatar">AA</div>
+          <div class="author-info">
+            <strong>Antônio Augusto</strong>
+            <span>Sócio Proprietário, Açougue Colosso</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FINAL CTA + FORM ========== -->
+<section class="final-cta" id="cta">
+  <div class="container">
+    <div class="final-cta-inner">
+      <div>
+        <span class="h-brush">Pronto pra parar de apagar incêndio?</span>
+        <h2>Seu açougue merece um sistema feito pra ele<span class="red-dot" style="color:#000"></span></h2>
+        <p>
+          Deixa teu contato aqui. A gente te liga, mostra o sistema por
+          dentro e te ajuda a entender se faz sentido pro teu açougue.
+        </p>
+        <p style="color:rgba(255,255,255,0.95); font-weight:600">
+          Sem fidelidade. Sem multa. Sem bot.
+        </p>
+      </div>
+      <div class="kommo-form-wrap">
+        <div id="kommo-form-container"></div>
+        <div class="form-alt">
+          Prefere falar agora? <a href="https://wa.me/5562994512211" target="_blank">Chama no WhatsApp</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== GUARANTEE ========== -->
+<section class="guarantee">
+  <div class="container">
+    <div class="guarantee-inner">
+      <div class="shield">✓</div>
+      <h3>Sem multa. Sem fidelidade<span class="red-dot"></span></h3>
+      <p>
+        Você testa o sistema. Se não servir pro teu açougue, cancela.
+        Sem pegadinha, sem letra miúda, sem amarração.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FAQ ========== -->
+<section class="faq" id="faq">
+  <div class="container">
+    <div class="section-title">
+      <span class="h-brush">Perguntas frequentes</span>
+      <h2>Respostas diretas<span class="red-dot"></span></h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-question">Preciso assinar contrato de fidelidade?<span></span></div>
+        <div class="faq-answer">
+          Não. Você testa, usa e cancela quando quiser. Sem multa, sem
+          amarração, sem burocracia.
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">Vocês cobram taxa por pedido?</div>
+        <div class="faq-answer">
+          Zero. A gente cobra uma mensalidade fixa. O faturamento do seu
+          açougue continua 100% seu.
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">Funciona pra quem já usa WhatsApp pra vender?</div>
+        <div class="faq-answer">
+          Funciona ainda melhor. A gente conecta com WhatsApp, organiza
+          os pedidos em um painel e resolve o caos da planilha e do papel.
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">E se o peso na balança não for exato?</div>
+        <div class="faq-answer">
+          O sistema trabalha com margem de até 20% de variação de peso
+          no pagamento online, com estorno automático. Cliente paga o que
+          recebeu. Sem discussão na porta.
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">O suporte atende no pico do fim de semana?</div>
+        <div class="faq-answer">
+          De segunda a sexta, das 8h às 18h. Gente de verdade, sem bot.
+          E o sistema foi feito pra aguentar pico sem cair.
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">Tem integração com meu site e redes sociais?</div>
+        <div class="faq-answer">
+          Sim. Google Analytics, Tag Manager e Facebook Pixel integrados.
+          Você mede cada clique, cada venda, cada campanha.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <a href="#"><img src="https://raw.githubusercontent.com/marketingonbeef/marketingonbeef.github.io/main/logo%20onbeef.png" alt="Onbeef" style="height:36px; margin-bottom:16px; display:block;" /></a>
+        <p class="footer-about">
+          Sistema de delivery feito exclusivamente para açougues,
+          boutiques e casas de carne. Construído do zero pra quem
+          vende carne de verdade.
+        </p>
+      </div>
+      <div class="footer-col">
+        <h5>Onbeef</h5>
+        <ul>
+          <li><a href="#">Sobre</a></li>
+          <li><a href="#cases">Cases</a></li>
+          <li><a href="#">Planos</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Suporte</h5>
+        <ul>
+          <li><a href="https://wa.me/5562994512211">WhatsApp</a></li>
+          <li><a href="https://lojista.onbeefapp.com.br">Área do lojista</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Contato</h5>
+        <ul>
+          <li><a href="https://wa.me/5562994512211">(62) 99451-2211</a></li>
+          <li><a href="https://instagram.com/onbeef_app" target="_blank">@onbeef_app</a></li>
+          <li><a href="https://onbeefapp.com.br">onbeefapp.com.br</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2026 Onbeef. Feito com peso pra quem vende carne.
+    </div>
+  </div>
+</footer>
+
+<!-- ========== WHATSAPP FLOAT ========== -->
+<a href="https://wa.me/5562994512211" class="wa-float" target="_blank" aria-label="WhatsApp">
+  <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.465 3.488"/>
+  </svg>
+</a>
+
+<script>
+// FAQ toggle
+document.querySelectorAll('.faq-question').forEach(q => {
+  q.addEventListener('click', () => {
+    q.parentElement.classList.toggle('open');
+  });
+});
+
+// Reveal on scroll
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in');
+      io.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('section > .container > *').forEach(el => {
+  el.classList.add('reveal');
+  io.observe(el);
+});
+
+</script>
+
+<!-- ========== KOMMO FORM ========== -->
+<script>!function(a,m,o,c,r,m){a[o+c]=a[o+c]||{setMeta:function(p){this.params=(this.params||[]).concat([p])}},a[o+r]=a[o+r]||function(f){a[o+r].f=(a[o+r].f||[]).concat([f])},a[o+r]({id:"1679452",hash:"5a5b3442341d99fc7939e9c80c8b23c0",locale:"pt",inline:true,container:"kommo-form-container"}),a[o+m]=a[o+m]||function(f,k){a[o+m].f=(a[o+m].f||[]).concat([[f,k]])}}(window,0,"amo_forms_","params","load","loaded");</script>
+<script id="amoforms_script_1679452" async="async" charset="utf-8" src="https://forms.kommo.com/forms/assets/js/amoforms.js?1776084244"></script>
+<script>
+// Move o widget flutuante da Kommo para dentro do container correto
+(function () {
+  var container = document.getElementById('kommo-form-container');
+  if (!container) return;
+  var moved = false;
+  var attempt = 0;
+  function tryMove() {
+    if (moved) return;
+    attempt++;
+    // Tenta encontrar o wrapper do form Kommo injetado no body
+    var selectors = [
+      '.amoforms-wrapper',
+      '[id*="amoforms_wrapper"]',
+      '[class*="amoforms-wrap"]',
+      '.amoform',
+      '[id^="amoforms"]'
+    ];
+    var formEl = null;
+    for (var i = 0; i < selectors.length; i++) {
+      var el = document.querySelector(selectors[i]);
+      if (el && !container.contains(el)) { formEl = el; break; }
+    }
+    if (formEl) {
+      moved = true;
+      // Remove posicionamento fixo/flutuante
+      formEl.style.setProperty('position', 'static', 'important');
+      formEl.style.setProperty('bottom', 'auto', 'important');
+      formEl.style.setProperty('left', 'auto', 'important');
+      formEl.style.setProperty('right', 'auto', 'important');
+      formEl.style.setProperty('top', 'auto', 'important');
+      formEl.style.setProperty('z-index', 'auto', 'important');
+      formEl.style.setProperty('width', '100%', 'important');
+      formEl.style.setProperty('max-width', '100%', 'important');
+      formEl.style.setProperty('display', 'block', 'important');
+      container.appendChild(formEl);
+    } else if (attempt < 40) {
+      setTimeout(tryMove, 300);
+    }
+  }
+  // Observa inserções no DOM
+  var observer = new MutationObserver(function () { tryMove(); });
+  observer.observe(document.body, { childList: true, subtree: false });
+  // Também tenta após o carregamento do script
+  setTimeout(tryMove, 500);
+  setTimeout(tryMove, 1500);
+  setTimeout(tryMove, 3000);
+})();
+</script>
+
+<!-- CSS override: adapta o tema do formulário Kommo ao visual Onbeef -->
+<style>
+/* Wrapper do form Kommo */
+.kommo-form-wrap {
+  background: #000;
+  padding: 40px;
+  border-radius: 12px;
+  border: 2px solid rgba(255,255,255,0.12);
+}
+.form-alt {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(245,245,220,0.1);
+  color: rgba(245,245,220,0.5);
+  font-size: 13px;
+}
+.form-alt a {
+  color: #F60903;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* Esconde qualquer widget flutuante da Kommo que NÃO esteja no nosso container */
+body > .amoforms-wrapper,
+body > [id*="amoforms_wrapper"],
+body > [class*="amoforms-wrap"] {
+  display: none !important;
+}
+/* Quando estiver dentro do container, mostra e remove posicionamento fixo */
+#kommo-form-container .amoforms-wrapper,
+#kommo-form-container [id*="amoforms_wrapper"],
+#kommo-form-container [class*="amoforms-wrap"] {
+  display: block !important;
+  position: static !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  z-index: auto !important;
+}
+
+/* Overrides visuais no form injetado pela Kommo */
+#kommo-form-container .amoform,
+#kommo-form-container .amoforms-form {
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+#kommo-form-container input[type="text"],
+#kommo-form-container input[type="email"],
+#kommo-form-container input[type="tel"],
+#kommo-form-container select,
+#kommo-form-container textarea {
+  background: #0A0A0A !important;
+  border: 1px solid rgba(245,245,220,0.15) !important;
+  border-radius: 6px !important;
+  color: #F5F5DC !important;
+  font-family: 'Poppins', sans-serif !important;
+  padding: 14px 16px !important;
+}
+#kommo-form-container input:focus,
+#kommo-form-container select:focus,
+#kommo-form-container textarea:focus {
+  border-color: #F60903 !important;
+  outline: none !important;
+}
+#kommo-form-container label,
+#kommo-form-container .amoforms-label {
+  color: rgba(245,245,220,0.7) !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+#kommo-form-container button[type="submit"],
+#kommo-form-container .amoforms-submit,
+#kommo-form-container input[type="submit"] {
+  background: #F60903 !important;
+  color: #FFF !important;
+  border: none !important;
+  border-radius: 6px !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  padding: 18px !important;
+  width: 100% !important;
+  cursor: pointer !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  transition: background 0.2s !important;
+}
+#kommo-form-container button[type="submit"]:hover,
+#kommo-form-container .amoforms-submit:hover {
+  background: #D90802 !important;
+}
+#kommo-form-container .amoforms-title,
+#kommo-form-container h2,
+#kommo-form-container h3 {
+  color: #FFF !important;
+  font-family: 'Barlow Condensed', sans-serif !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+}
+</style>
+
+</body>
+</html>
