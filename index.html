@@ -169,6 +169,8 @@ nav {
   justify-content: center;
   gap: 12px;
   flex-wrap: wrap;
+  overflow: hidden;
+  position: relative;
 }
 .trust-strip span {
   display: inline-flex;
@@ -214,10 +216,31 @@ nav {
   font-size: 13px;
   letter-spacing: 1px;
 }
-@media (max-width: 600px) {
-  .trust-strip { gap: 8px; padding: 10px 16px; }
-  .trust-strip span { font-size: 12px; padding: 5px 12px; }
-  .trust-strip-rating { font-size: 12px; padding: 5px 12px; }
+@media (max-width: 768px) {
+  .trust-strip {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 10px 16px;
+    gap: 8px;
+  }
+  .trust-strip::-webkit-scrollbar { display: none; }
+  /* fade nas bordas para indicar scroll */
+  .trust-strip::before,
+  .trust-strip::after {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 32px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .trust-strip::before { left: 0; background: linear-gradient(to right, #111, transparent); }
+  .trust-strip::after  { right: 0; background: linear-gradient(to left, #111, transparent); }
+  .trust-strip span { font-size: 12px; padding: 5px 12px; flex-shrink: 0; }
+  .trust-strip-rating { font-size: 12px; padding: 5px 12px; flex-shrink: 0; }
 }
 
 /* ============ HERO DEMO LINK ============ */
@@ -1355,8 +1378,11 @@ footer {
   .hero-stat-row .stat-item .stat-val { font-size: 28px; }
 
   /* Logos */
-  .logo-circle { width: 80px; height: 80px; padding: 8px; }
-  .logos-track { gap: 20px; }
+  .logos-section { padding: 36px 0; }
+  .logo-circle { width: 70px; height: 70px; }
+  .logo-circle img { width: 70px; height: 70px; }
+  .logos-track { gap: 16px; }
+  .logos-label { font-size: 10px; margin-bottom: 24px; }
 
   /* Numbers */
   .numbers-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
